@@ -2,7 +2,7 @@
 import './App.css'
 import { BrowserRouter } from 'react-router-dom'
 import { AppRoutes } from './AppRoutes'
-
+import { Toaster } from "@/components/ui/sonner"
 function App() {
 
 
@@ -10,6 +10,7 @@ function App() {
 
   <BrowserRouter>
   <AppRoutes/>
+   <Toaster />
   </BrowserRouter>
 
   )
