@@ -1,6 +1,14 @@
 package com.leokina.ProjectXTask.Usuarios;
 
+import com.leokina.ProjectXTask.Projetos.ProjetosModel;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "tb_usuario")
 public class UsuariosModel {
@@ -13,4 +21,8 @@ public class UsuariosModel {
 
     @Column(name = "name")
     private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "projetos_id")
+    private ProjetosModel projetos;
 }
