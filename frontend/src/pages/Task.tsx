@@ -1,6 +1,13 @@
+import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { BarChart2, MoonIcon, SunIcon, X } from 'lucide-react'
+import { toast } from "sonner"
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { projetoFormSchema } from '@/schemas/projetoSchema'
+import { z } from 'zod'
+import { dateFormatter } from '@/utils/formatter'
 import {
   Dialog,
   DialogClose,
@@ -11,115 +18,176 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { toast } from "sonner"
-import { Checkbox } from "@/components/ui/checkbox"
-
-import React from 'react'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 
-interface HomeProps{
-    homeBtn: () => void
+type ProjetoFormData = z.infer<typeof projetoFormSchema>
+
+interface HomeProps {
+  homeBtn: () => void
 }
 
-export const Task = ({homeBtn}:HomeProps) => {
+
+const membersList = ["Carlos", "Lucas", "Manuela"]
+
+export const Task = ({ homeBtn }: HomeProps) => {
+
+  const [projects, setProjects] = useState<{ name: string; createdAt: Date; members: string[] }[]>([])
+
+  const { register, handleSubmit, reset } = useForm<ProjetoFormData>({
+    resolver: zodResolver(projetoFormSchema)
+  })
+
+  const onSubmit = (data: ProjetoFormData) => {
+    const newProject = { name: data.name, createdAt: new Date(), members: [] }
+    setProjects((prev) => [...prev, newProject])
+    reset() 
+
+    toast("Projeto Criado", {
+      description: dateFormatter.format(newProject.createdAt),
+      action: {
+        label: "Undo",
+        onClick: () => console.log("Undo"),
+      },
+    })
+  }
+
+  const removeProject = (index: number) => {
+    setProjects((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const toggleMember = (projectIdx: number, member: string) => {
+    setProjects((prev) =>
+      prev.map((p, i) => {
+        if (i === projectIdx) {
+          const isSelected = p.members.includes(member)
+          const updatedMembers = isSelected
+            ? p.members.filter((m) => m !== member)
+            : [...p.members, member]
+          return { ...p, members: updatedMembers }
+        }
+        return p
+      })
+    )
+  }
+
   return (
-    <div>
-        <div className='flex justify-between mb-5'>
+    <div className="p-6">
+     <div className='flex justify-between mb-5'>
         <div className='flex items-center gap-3'>
-                <BarChart2 color='blue' />
-        <h2 className='font-bold text-accent-foreground text-2xl'>Project <span className='text-blue-700'>X</span> Tasks</h2>
-    
+          <BarChart2 color='blue' />
+          <h2 className='font-bold text-accent-foreground text-2xl'>
+            Project <span className='text-blue-700'>X</span> Tasks
+          </h2>
         </div>
-        <div className='flex gap-'>
-        <MoonIcon/>
-        <SunIcon/>
+        <div className='flex gap-2'>
+          <MoonIcon />
+          <SunIcon />
         </div>
-        </div>
-        <div className='flex p-10 items-center gap-2 justify-center'>
-        <Input className='w-full max-w-xl' placeholder='Digite seu Projeto'/>
-           <Button
-      variant="outline"
-      onClick={() =>
-        toast("Projeto Criado", {
-          description: "Sunday, December 03, 2023 at 9:00 AM",
-          action: {
-            label: "Undo",
-            onClick: () => console.log("Undo"),
-          },
-        })
-      }
-    >
-      Show Toast
-    </Button>
-        </div>
-        <div>
-            <ul className='flex items-center border-1 rounded-xl p-2 '>
-                <li className='flex items-center justify-between w-full font-semibold text-accent-foreground'>Projetinho super bacana com  minha equipe<div className='flex items-center'><X color='red'/>     <Dialog>
-      <form>
-        <DialogTrigger asChild>
-          <Button variant="outline">Editar</Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Edit profile</DialogTitle>
-            <DialogDescription>
-             Altere seus projetos.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4">
-            <div className="grid gap-3">
-              <Label htmlFor="name-1">Name</Label>
-              <Input id="name-1" name="name" defaultValue="Projetinho super bacana com  minha equipe" />
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="username-1">Username</Label>
-              
-            <Select>
-  <SelectTrigger className="w-[180px]">
-    <SelectValue placeholder="Theme" />
-  </SelectTrigger>
-  <SelectContent>
-    <div className='flex flex-col gap-3'>
-  <div className="flex items-center gap-3">
-        <Checkbox/>
-        <Label className='text-blue-500'>Carlos</Label>
       </div>
-        <div className="flex items-center gap-3">
-        <Checkbox/>
-        <Label className='text-blue-500'>Lucas</Label>
-      </div>
-        <div className="flex items-center gap-3">
-        <Checkbox/>
-        <Label className='text-blue-500'>Manuela</Label>
-      </div>
-</div>
-  </SelectContent>
-</Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button type="submit">Save changes</Button>
-          </DialogFooter>
-        </DialogContent>
+
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className='flex p-4 items-center gap-2 justify-center'
+      >
+        <Input
+          className='w-full max-w-xl'
+          placeholder='Digite seu Projeto'
+          {...register('name')}
+        />
+        <Button type='submit' variant="outline">Criar</Button>
       </form>
-    </Dialog> </div></li>
-    
 
-            </ul>
-            
-        </div>
-        <Button onClick={homeBtn}>Ir para Home</Button>
+  
+      <ul className='flex flex-col gap-2 px-10 mt-4'>
+        {projects.map((project, idx) => (
+          <li
+            key={idx}
+            className='flex items-center justify-between p-2 border rounded-xl'
+          >
+            <div className='flex flex-col'>
+              <span className='font-semibold'>{project.name}</span>
+              <span className='text-sm text-gray-500'>
+                {dateFormatter.format(project.createdAt)}
+              </span>
+              {project.members.length > 0 && (
+                <span className='text-sm text-blue-500'>
+                  Responsáveis: {project.members.join(", ")}
+                </span>
+              )}
+            </div>
 
-        
+            <div className='flex items-center gap-2'>
+      
+              <X 
+                color='red'
+                className='cursor-pointer hover:opacity-50'
+                onClick={() => removeProject(idx)}
+              />
+
+          
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">Editar</Button>
+                </DialogTrigger>
+
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Editar Projeto</DialogTitle>
+                    <DialogDescription>
+                      Altere o nome do projeto e selecione os responsáveis.
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault()
+                      const form = e.target as typeof e.target & { name: { value: string } }
+                      const updatedName = form.name.value
+
+                      setProjects((prev) =>
+                        prev.map((p, i) => i === idx ? { ...p, name: updatedName } : p)
+                      )
+                    }}
+                    className="grid gap-4"
+                  >
+                    <div className="grid gap-3">
+                      <Label htmlFor={`name-${idx}`}>Nome</Label>
+                      <Input
+                        id={`name-${idx}`}
+                        name="name"
+                        defaultValue={project.name}
+                      />
+                    </div>
+
+                    <div className="grid gap-2">
+                      <Label>Responsáveis</Label>
+                      {membersList.map((member) => (
+                        <div key={member} className="flex items-center gap-2">
+                          <Checkbox
+                            checked={project.members.includes(member)}
+                            onCheckedChange={() => toggleMember(idx, member)}
+                          />
+                          <Label>{member}</Label>
+                        </div>
+                      ))}
+                    </div>
+
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button variant="outline">Cancelar</Button>
+                      </DialogClose>
+                      <Button type="submit">Salvar Nome</Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <Button onClick={homeBtn} className="mt-6">Ir para Home</Button>
     </div>
   )
 }

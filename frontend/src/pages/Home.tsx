@@ -3,12 +3,14 @@ import React from 'react'
 
 interface SobreProps{
     tasksBtn: () => void
+    funcionariosBtn: () => void
 }
-export const Home = ({tasksBtn}:SobreProps) => {
+export const Home = ({tasksBtn, funcionariosBtn}:SobreProps) => {
   return (
     <div>
         <h2>Bem vindo</h2>
-         <Button onClick={tasksBtn}>clique</Button>
+         <Button onClick={tasksBtn}>tasks</Button>
+         <Button onClick={funcionariosBtn}>funcionarios</Button>
     </div>
    
   )
