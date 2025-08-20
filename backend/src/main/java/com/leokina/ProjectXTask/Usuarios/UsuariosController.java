@@ -1,16 +1,26 @@
 package com.leokina.ProjectXTask.Usuarios;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/usuarios")
 @CrossOrigin(origins = "http://localhost:5173")
 public class UsuariosController {
-    @GetMapping("/boasvindas")
-    public String boasVindas(){
-        return "boas vindas meu parceiro";
+    private UsuariosService usuariosService;
+
+    public UsuariosController(UsuariosService usuariosService) {
+        this.usuariosService = usuariosService;
+    }
+
+    @GetMapping("/listar")
+    public List<UsuariosDTO> listarUsuario(){
+        return usuariosService.listarUsuarios();
+    }
+
+    @PostMapping("/criar")
+    public UsuariosDTO criarUsuario(@RequestBody UsuariosDTO usuariosDTO){
+        return usuariosService.adicionarUsuario(usuariosDTO);
     }
 }
