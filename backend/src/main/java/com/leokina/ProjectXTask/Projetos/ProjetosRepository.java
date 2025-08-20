@@ -1,4 +1,6 @@
 package com.leokina.ProjectXTask.Projetos;
 
-public interface ProjetosRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ProjetosRepository extends JpaRepository<ProjetosModel, Long> {
 }
