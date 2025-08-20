@@ -24,5 +24,5 @@ public class ProjetosModel {
 
     @OneToMany(mappedBy = "projetos")
     @JsonIgnore
-    private List<UsuariosModel> ninjas;
+    private List<UsuariosModel> usuario;
 }
