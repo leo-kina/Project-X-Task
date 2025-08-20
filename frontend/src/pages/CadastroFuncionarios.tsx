@@ -14,6 +14,8 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from 'zod'
 import { projetoFormSchema } from "@/schemas/cadastroUsuarioSchema.ts"
+import { criarUsuario } from "@/services/usuarioService"
+import { toast } from "sonner"
 
 interface FuncionariosProps {
   homeBtn: () => void
@@ -22,14 +24,19 @@ interface FuncionariosProps {
 type ProjetoFormData = z.infer<typeof projetoFormSchema>
 
 export const CadastroFuncionarios = ({ homeBtn }: FuncionariosProps) => {
-  const { register, handleSubmit,reset, formState: { errors } } = useForm<ProjetoFormData>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProjetoFormData>({
     resolver: zodResolver(projetoFormSchema),
   })
 
-  const onSubmit = (data: ProjetoFormData) => {
-    console.log("Dados enviados:", data)
-    reset()
-   
+  const onSubmit = async (data: ProjetoFormData) => {
+    try {
+      const usuarioCriado = await criarUsuario(data) 
+      toast.success(`Usuário ${usuarioCriado.name} cadastrado!`)
+      reset() 
+    } catch (error) {
+      console.error(error)
+      toast.error("Erro ao cadastrar usuário")
+    }
   }
 
   return (
